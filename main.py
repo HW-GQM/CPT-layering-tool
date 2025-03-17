@@ -1,8 +1,9 @@
 import streamlit as st
 import pandas as pd
+import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
-from  streamlit_vertical_slider import vertical_slider
+import io
 
 # Make display wider
 st.set_page_config(
@@ -17,17 +18,6 @@ st.markdown("""
                     padding-left: 5rem;
                     padding-right: 5rem;
                 }
-                .scrollable-col {
-                    max-height: 500px;
-                    overflow-y: scroll;
-                }
-                .fixed-col {
-                position: fixed;
-                width: 20%;
-                height: 100vh;
-                overflow: hidden;
-                z-index: 100;
-            }
         </style>
         """, unsafe_allow_html=True)
 
@@ -37,8 +27,25 @@ def load_data():
     df = pd.read_excel("training data/EnBW training data_rev3.1_filtered.xlsx")
     return df
 
+# Convert dataframe to csv
+@st.cache_data
+def convert_for_download(df):
+    return df.to_csv().encode("utf-8")
+
 raw_df = load_data()
 
+with st.sidebar.expander("📘 Instructions"):
+    st.markdown("""
+    ### Welcome to My App!
+
+    This app helps you do XYZ. Here's how to use it:
+
+    1. **Step 1**: Upload your data using the file uploader.
+    2. **Step 2**: Adjust the settings using the sliders.
+    3. **Step 3**: Click the "Run" button to see the results.
+
+    For more information, visit the [documentation](https://example.com).
+    """)
 
 st.sidebar.subheader("CPT Layer Interpretation Tool")
 
@@ -60,11 +67,17 @@ for i in range(num_layers):
 @st.dialog("Input your name:")
 def save_data():
     user_name = st.text_input("Enter your name:")
-    if st.button("Submit"):
-        if user_name:
-            st.success(f"Data saved as ...")
-        else:
-            st.error("Please enter your name.")
+    #if st.button("Submit"):
+    if user_name:
+        # Build dataframe
+        layer = layers.sort()    # Make sure the layers are in order
+        save_df = pd.DataFrame(layers, columns=[bh])
+        csv_data = convert_for_download(save_df)
+        download = st.download_button("Download CSV", data=csv_data, file_name=f"{bh}_cpt layering_{user_name}.csv", mime="text/csv")
+        if download:
+            st.success(f"Data downloaded :)")
+    else:
+        st.error("Please enter your name.")
 
 # User clicks Save Button
 if st.sidebar.button("Save Data"):
