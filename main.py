@@ -8,6 +8,9 @@ import io
 # Make display wider
 st.set_page_config(
     layout="wide",
+    page_title="CPT tool",
+    page_icon=":ship:",  # Path to your favicon file
+    layout="wide"
 )
 
 st.markdown("""
