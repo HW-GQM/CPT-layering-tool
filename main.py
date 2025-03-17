@@ -24,7 +24,7 @@ st.markdown("""
 # Load example CPT data
 @st.cache_data
 def load_data():
-    df = pd.read_excel("training data/EnBW training data_rev3.1_filtered.xlsx")
+    df = pd.read_excel("training data/EnBW training data_rev3.2_filtered.xlsx")
     return df
 
 # Convert dataframe to csv
@@ -33,6 +33,8 @@ def convert_for_download(df):
     return df.to_csv().encode("utf-8")
 
 raw_df = load_data()
+
+st.sidebar.subheader("CPT Layer Interpretation Tool")
 
 with st.sidebar.expander("📘 Instructions"):
     st.markdown("""
@@ -46,8 +48,6 @@ with st.sidebar.expander("📘 Instructions"):
 
     For more information, visit the [documentation](https://example.com).
     """)
-
-st.sidebar.subheader("CPT Layer Interpretation Tool")
 
 bh = st.sidebar.selectbox(
 "Borehole",
