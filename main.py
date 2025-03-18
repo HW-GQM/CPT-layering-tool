@@ -56,9 +56,9 @@ df = raw_df[raw_df["BH"] == bh]
 num_layers = st.sidebar.number_input("Number of layers:", min_value=1, max_value=10, value=3, step=1)
 
 layers = []
-for i in range(num_layers):
+for i in range(num_layers - 1):
     # User input (e.g., depth range selection)
-    depth = st.sidebar.slider(f"Layer {i+1}", 0.0, df["Depth (m)"].max(), 1.0, step=0.1, format="%0.1f", key=i)
+    depth = st.sidebar.slider(f"Layer boundary {i+1}", 0.0, df["Depth (m)"].max(), 1.0, step=0.1, format="%0.1f", key=i)
     layers.append(depth)
 
 @st.dialog("Input your name:")
