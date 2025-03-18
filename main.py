@@ -9,7 +9,7 @@ import io
 st.set_page_config(
     layout="wide",
     page_title="CPT tool",
-    page_icon=":ship:",  # Path to your favicon file
+    page_icon=":pick:",  # Path to your favicon file
 )
 
 st.markdown("""
@@ -40,21 +40,16 @@ st.sidebar.subheader("CPT Layer Interpretation Tool")
 
 with st.sidebar.expander("📘 Instructions"):
     st.markdown("""
-    ### Welcome to My App!
-
-    This app helps you do XYZ. Here's how to use it:
-
-    1. **Step 1**: Upload your data using the file uploader.
-    2. **Step 2**: Adjust the settings using the sliders.
-    3. **Step 3**: Click the "Run" button to see the results.
-
-    For more information, visit the [documentation](https://example.com).
+    ### 
+    1. **Step 1**: Select a borehole from the dropdown.
+    2. **Step 2**: Adjust layer boundaries by dragging the sliders. Fine-tune using the red dot with the left/right arrow keys.
+    3. **Step 3**: Click "Save Data", enter your name, and download the data as a CSV.
+    4. **Step 4**: Save all CSV files to Z:\\06. TRANSFER\Hin W\CPT layering tool\csv data exports
+                
+    ❗ **Note**: Data will not be saved if the borehole is changed.
     """)
 
-bh = st.sidebar.selectbox(
-"Borehole",
-raw_df["BH"].unique(),
-)
+bh = st.sidebar.selectbox("Borehole", raw_df["BH"].unique())
 
 df = raw_df[raw_df["BH"] == bh]
 
@@ -127,6 +122,6 @@ for col in range(4):
                                             line=dict(color='red', width=1, dash="dash"))) , row=1, col=col+1)
 
 fig.update_yaxes(autorange="reversed")  # Depth increases downward
-fig.update_layout(width=1000, height=700, showlegend=False,
+fig.update_layout(width=1000, height=800, showlegend=False,
                   margin=dict(t=50))
 st.plotly_chart(fig, use_container_width=True)
