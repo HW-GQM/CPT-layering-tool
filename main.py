@@ -27,11 +27,13 @@ st.markdown("""
 @st.cache_data
 def load_data():
     df = pd.read_excel("training data/EnBW training data_rev3.2_filtered.xlsx")
+    print("data loaded")
     return df
 
 # Convert dataframe to csv
 @st.cache_data
 def convert_for_download(df):
+    print("convert for download")
     return df.to_csv().encode("utf-8")
 
 raw_df = load_data()
