@@ -43,7 +43,7 @@ with st.sidebar.expander("📘 Instructions"):
     ### 
     1. **Step 1**: Select a borehole from the dropdown.
     2. **Step 2**: Adjust layer boundaries by dragging the sliders. Fine-tune using the red dot with the left/right arrow keys.
-    3. **Step 3**: Click "Save Data", enter your name, and download the data as a CSV.
+    3. **Step 3**: For every borehole, click "Save Data", enter your name, and download the data as a CSV.
     4. **Step 4**: Save all CSV files to Z:\\06. TRANSFER\Hin W\CPT layering tool\csv data exports
                 
     ❗ **Note**: Data will not be saved if the borehole is changed.
