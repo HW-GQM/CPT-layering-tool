@@ -9,7 +9,7 @@ import io
 st.set_page_config(
     layout="wide",
     page_title="CPT tool",
-    page_icon=":ship:",  # Path to your favicon file
+    page_icon=":pick:",  
 )
 
 st.markdown("""
@@ -36,7 +36,7 @@ def convert_for_download(df):
 
 raw_df = load_data()
 
-st.sidebar.subheader("CPT Layer Interpretation Tool")
+st.sidebar.header("CPT Layer Interpretation Tool")
 
 with st.sidebar.expander("📘 Instructions"):
     st.markdown("""
@@ -51,19 +51,19 @@ with st.sidebar.expander("📘 Instructions"):
     For more information, visit the [documentation](https://example.com).
     """)
 
-bh = st.sidebar.selectbox(
-"Borehole",
-raw_df["BH"].unique(),
-)
+# Create selectbox and store it in session state
+bh = st.sidebar.selectbox("Borehole", raw_df["BH"].unique())
+if "bh" not in st.session_state:
+    st.session_state.bh = bh
 
 df = raw_df[raw_df["BH"] == bh]
 
-num_layers = st.sidebar.number_input("Number of layers:", min_value=1, max_value=10, value=3, step=1)
+num_layers = st.sidebar.number_input("Number of layers:", min_value=2, max_value=10, value=4, step=1)
 
 layers = []
-for i in range(num_layers):
+for i in range(num_layers - 1):
     # User input (e.g., depth range selection)
-    depth = st.sidebar.slider(f"Layer {i+1}", 0.0, df["Depth (m)"].max(), 1.0, step=0.1, format="%0.1f", key=i)
+    depth = st.sidebar.slider(f"Layer boundary {i+1}", 0.0, df["Depth (m)"].max(), 1.0, step=0.1, format="%0.1f", key=i)
     layers.append(depth)
 
 @st.dialog("Input your name:")
@@ -91,42 +91,75 @@ st.markdown('<div class="fixed-col">Fixed Column</div>', unsafe_allow_html=True)
 
 params = ["Qt", "Fr", "Bq", "Ic"]
 
-fig = make_subplots(
-rows=1, cols=4,          # Number of rows and columns
-shared_yaxes=True,       # Share x-axis for all subplots
-vertical_spacing=0.1,    # Spacing between rows
-subplot_titles=(params)  # Titles for each subplot
-)
+# Session state to cache plot and rerender only when user select new BH
+if "fig" not in st.session_state or bh != st.session_state.bh:
 
-# Plot Ic zones
-fig.add_shape(type="rect", x0=0, x1=1.31, y0=0, y1=df["Depth (m)"].max(), fillcolor="crimson", opacity=0.2,
-                layer="below", row=1, col=4)
-fig.add_shape(type="rect", x0=1.31, x1=2.05, y0=0, y1=df["Depth (m)"].max(), fillcolor="LightSkyBlue", opacity=0.2,
-                layer="below", row=1, col=4)
-fig.add_shape(type="rect", x0=2.05, x1=2.6, y0=0, y1=df["Depth (m)"].max(), fillcolor="limegreen", opacity=0.2,
-                layer="below", row=1, col=4)
-fig.add_shape(type="rect", x0=2.6, x1=2.95, y0=0, y1=df["Depth (m)"].max(), fillcolor="tomato", opacity=0.2,
-                layer="below", row=1, col=4)
-fig.add_shape(type="rect", x0=2.95, x1=3.6, y0=0, y1=df["Depth (m)"].max(), fillcolor="gold", opacity=0.2,
-                layer="below", row=1, col=4)
+    fig = make_subplots(
+    rows=1, cols=4,          # Number of rows and columns
+    shared_yaxes=True,       # Share x-axis for all subplots
+    vertical_spacing=0.1,    # Spacing between rows
+    subplot_titles=(params)  # Titles for each subplot
+    )
 
-# Plot data
-fig.add_trace(go.Scatter(x=df['Qt'], y=df['Depth (m)'], name="Qt", marker=dict(size=20, color="CornflowerBlue")), row=1, col=1)
-fig.add_trace(go.Scatter(x=df['Fr'], y=df['Depth (m)'], name="Fr", marker=dict(size=20, color="MediumSeaGreen")), row=1, col=2)
-fig.add_trace(go.Scatter(x=df['Bq'], y=df['Depth (m)'], name="Bq", marker=dict(size=20, color="Slateblue")), row=1, col=3)
-fig.add_trace(go.Scatter(x=df['Ic'], y=df['Depth (m)'], name="Ic", marker=dict(size=20, color="Goldenrod")), row=1, col=4)
+    # Plot Ic zones
+    fig.add_shape(type="rect", x0=0, x1=1.31, y0=0, y1=df["Depth (m)"].max(), fillcolor="darkviolet", opacity=0.2,
+                    layer="below", row=1, col=4)
+    fig.add_shape(type="rect", x0=1.31, x1=2.05, y0=0, y1=df["Depth (m)"].max(), fillcolor="LightSkyBlue", opacity=0.2,
+                    layer="below", row=1, col=4)
+    fig.add_shape(type="rect", x0=2.05, x1=2.6, y0=0, y1=df["Depth (m)"].max(), fillcolor="limegreen", opacity=0.2,
+                    layer="below", row=1, col=4)
+    fig.add_shape(type="rect", x0=2.6, x1=2.95, y0=0, y1=df["Depth (m)"].max(), fillcolor="tomato", opacity=0.2,
+                    layer="below", row=1, col=4)
+    fig.add_shape(type="rect", x0=2.95, x1=3.6, y0=0, y1=df["Depth (m)"].max(), fillcolor="gold", opacity=0.2,
+                    layer="below", row=1, col=4)
 
-# Plot layer boundaries
+    # Plot data
+    fig.add_trace(go.Scatter(x=df['Qt'], y=df['Depth (m)'], name="Qt", marker=dict(size=20, color="CornflowerBlue")), row=1, col=1)
+    fig.add_trace(go.Scatter(x=df['Fr'], y=df['Depth (m)'], name="Fr", marker=dict(size=20, color="MediumSeaGreen")), row=1, col=2)
+    fig.add_trace(go.Scatter(x=df['Bq'], y=df['Depth (m)'], name="Bq", marker=dict(size=20, color="Slateblue")), row=1, col=3)
+    fig.add_trace(go.Scatter(x=df['Ic'], y=df['Depth (m)'], name="Ic", marker=dict(size=20, color="Goldenrod")), row=1, col=4)
+
+    # Plot layer boundaries
+    for col in range(4):
+        for layer in layers:
+            if params[col] == "Ic":
+                xmax, xmin = 0, 3.6
+            else:
+                xmax, xmin = df[params[col]].min(), df[params[col]].max()
+            fig.add_trace((go.Scatter(x=[xmin, xmax], y=[layer, layer], mode='lines',
+                                                line=dict(color='red', width=1, dash="dash"))) , row=1, col=col+1)
+
+    fig.update_yaxes(autorange="reversed")  # Depth increases downward
+    fig.update_layout(width=1000, height=700, showlegend=False,
+                    margin=dict(t=50))
+    #st.plotly_chart(fig, use_container_width=True)
+    st.session_state.fig = fig
+
+
+# 🎯 Efficiently update only the layer boundaries using `relayout`
+shapes = []
 for col in range(4):
     for layer in layers:
         if params[col] == "Ic":
             xmax, xmin = 0, 3.6
         else:
             xmax, xmin = df[params[col]].min(), df[params[col]].max()
-        fig.add_trace((go.Scatter(x=[xmin, xmax], y=[layer, layer], mode='lines',
-                                            line=dict(color='red', width=1, dash="dash"))) , row=1, col=col+1)
 
-fig.update_yaxes(autorange="reversed")  # Depth increases downward
-fig.update_layout(width=1000, height=700, showlegend=False,
-                  margin=dict(t=50))
-st.plotly_chart(fig, use_container_width=True)
+        # Add boundary line as a shape (instead of a trace)
+        shapes.append({
+            "type": "line",
+            "x0": xmin,
+            "x1": xmax,
+            "y0": layer,
+            "y1": layer,
+            "line": {"color": "red", "width": 1, "dash": "dash"},
+            "xref": f"x{col + 1}",
+            "yref": "y1"
+        })
+
+# 🛠️ Use `relayout` to avoid re-rendering the entire plot
+st.session_state.fig.update_layout(shapes=shapes)
+
+
+# Plot the chart
+st.plotly_chart(st.session_state.fig, use_container_width=True)
