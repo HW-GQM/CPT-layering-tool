@@ -152,7 +152,7 @@ fig = make_subplots(
 rows=1, cols=4,          # Number of rows and columns
 shared_yaxes=True,       # Share x-axis for all subplots
 vertical_spacing=0.1,    # Spacing between rows
-subplot_titles=(params)  # Titles for each subplot
+subplot_titles=(["Qt [kPa]", "Fr [-]", "Bq [-]", "Ic [-]"])  # Titles for each subplot
 )
 
 # Plot Ic zones
@@ -184,6 +184,6 @@ for col in range(4):
                                             line=dict(color='red', width=1, dash="dash"))) , row=1, col=col+1)
 
 fig.update_yaxes(autorange="reversed")  # Depth increases downward
-fig.update_layout(width=1000, height=800, showlegend=False,
-                  margin=dict(t=50))
+fig.update_layout(width=1000, height=800, showlegend=False, margin=dict(t=50), yaxis_title="Depth (m)",
+         annotations=[dict(text=ann["text"], font=dict(size=20)) for ann in fig['layout']['annotations']])
 st.plotly_chart(fig, use_container_width=True)
