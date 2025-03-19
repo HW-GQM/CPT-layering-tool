@@ -23,7 +23,7 @@ st.set_page_config(
 
 # ✅ Authenticate with Google Drive
 SCOPES = ["https://www.googleapis.com/auth/drive"]
-SERVICE_ACCOUNT_FILE = "service_account.json"
+SERVICE_ACCOUNT_FILE = st.secrets["google"]["service_account_json"]
 
 # Load credentials
 creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
