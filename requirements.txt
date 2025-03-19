@@ -9,4 +9,5 @@ google-auth-oauthlib==0.7.1
 google-auth-httplib2==0.1.0
 google-api-python-client==2.80.0
 pydrive2==1.8.0
+openpyxl
 
