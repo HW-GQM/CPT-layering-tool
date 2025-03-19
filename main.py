@@ -90,6 +90,7 @@ st.markdown("""
 @st.cache_data
 def load_data():
     df = pd.read_excel("training data/EnBW training data_rev3.2_filtered.xlsx")
+    log_event(f"Data loaded")
     print("data loaded")
     return df
 
