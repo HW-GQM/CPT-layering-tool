@@ -24,9 +24,13 @@ st.set_page_config(
 # ✅ Authenticate with Google Drive
 SCOPES = ["https://www.googleapis.com/auth/drive"]
 SERVICE_ACCOUNT_FILE = st.secrets["google"]["service_account_json"]
+service_account_file = '/tmp/service_account.json'
+
+with open(service_account_file, 'w') as f:
+    f.write(SERVICE_ACCOUNT_FILE)
 
 # Load credentials
-creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+creds = Credentials.from_service_account_file(service_account_file, scopes=SCOPES)
 client = gspread.authorize(creds)
 
 # ✅ Specify the shared folder ID
