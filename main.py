@@ -4,13 +4,72 @@ import numpy as np
 import plotly.graph_objects as go
 from plotly.subplots import make_subplots
 import io
+import gspread
+from google.oauth2.service_account import Credentials
+from datetime import datetime
+from pydrive2.auth import GoogleAuth
+from pydrive2.drive import GoogleDrive
+from google.oauth2.service_account import Credentials
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+import uuid
 
-# Make display wider
+# Make display wider - must be called first
 st.set_page_config(
     layout="wide",
     page_title="CPT tool",
     page_icon=":pick:",  # Path to your favicon file
 )
+
+# ✅ Authenticate with Google Drive
+SCOPES = ["https://www.googleapis.com/auth/drive"]
+SERVICE_ACCOUNT_FILE = "service_account.json"
+
+# Load credentials
+creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+client = gspread.authorize(creds)
+
+# ✅ Specify the shared folder ID
+FOLDER_ID = "1S0xXeHz4AsPeIH6oWqJkGRHgZSfdTc8A"
+
+# ✅ Create or access the spreadsheet in the folder
+def create_or_access_spreadsheet():
+    # Use the existing spreadsheet with the ID (after creating it manually)
+    spreadsheet_id = '1E6GG0_z8vkqJ1rSWOtdg4Ca9TGWe2Kd6qagK9muY5TA'
+
+    sh = client.open_by_key(spreadsheet_id)  # This will open your manually created sheet
+
+    return sh
+
+# ✅ Log events into the spreadsheet
+@st.cache_data
+def log_event(message):
+    spreadsheet = create_or_access_spreadsheet()
+    
+    # Get the first worksheet
+    worksheet = spreadsheet.get_worksheet(0)
+    
+    # Create new worksheet if none exists
+    if not worksheet:
+        worksheet = spreadsheet.add_worksheet(title="Logs", rows="100", cols="3")
+
+    # Get session ID
+    user_id = st.session_state.user_id
+    print(f"Your session ID is: {user_id}")
+
+    # Append log data
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    worksheet.append_row([timestamp, message, user_id])
+
+    print("Log saved!")
+
+# Generate a unique session ID if it doesn't already exist
+if 'user_id' not in st.session_state:
+    st.session_state.user_id = str(uuid.uuid4())  # Generate a random UUID for the session
+
+log_event(f"User accessed the app")
+
+# App starts here ****************************************
 
 st.markdown("""
         <style>
@@ -74,6 +133,7 @@ def save_data():
         csv_data = convert_for_download(save_df)
         download = st.download_button("Download CSV", data=csv_data, file_name=f"{bh}_cpt layering_{user_name}.csv", mime="text/csv")
         if download:
+            log_event(f"Data downloaded : {bh} {user_name}")
             st.success(f"Data downloaded :)")
     else:
         st.error("Please enter your name.")
@@ -81,10 +141,6 @@ def save_data():
 # User clicks Save Button
 if st.sidebar.button("Save Data"):
     save_data()
-
-
-# static col
-st.markdown('<div class="fixed-col">Fixed Column</div>', unsafe_allow_html=True)
 
 params = ["Qt", "Fr", "Bq", "Ic"]
 
